@@ -1,4 +1,24 @@
 use glfw::{Action, Context, Key};
+use std::{
+    ffi::{CString, c_void},
+    ptr::null,
+};
+
+const VERTEX_SHADER_SOURCE: &str = r#"
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    void main() {
+        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    };
+"#;
+
+const FRAGMENT_SHADER_SOURCE: &str = r#"
+    #version 330 core
+    out vec4 FragColor;
+    void main() {
+        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    };
+"#;
 
 fn main() {
     let mut glfw = glfw::init(glfw::fail_on_errors).unwrap();
@@ -7,24 +27,11 @@ fn main() {
         glfw::OpenGlProfileHint::Core,
     ));
 
-    let mut m_height = 0;
-    let mut m_width = 0;
-
     let (mut window, events) = glfw
-        .with_primary_monitor(|glfw, monitors| {
-            for monitor in monitors.iter() {
-                let mode = monitor.get_video_mode().unwrap();
-                m_height = mode.height;
-                m_width = mode.width;
-            }
-            glfw.create_window(
-                m_width,
-                m_height,
-                "Learn OpenGL",
-                glfw::WindowMode::Windowed,
-            )
-        })
+        .create_window(800, 600, "Learn OpenGL", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
+
+    let (width, height) = window.get_framebuffer_size();
 
     window.set_key_polling(true);
     window.make_current();
@@ -36,6 +43,57 @@ fn main() {
         None => std::ptr::null(),
     });
 
+    let vertices: [f32; 9] = [-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0];
+
+    let mut vbo: u32 = 0;
+    let mut vao: u32 = 0;
+    let vertex_shader: u32;
+    let fragment_shader: u32;
+    let shader_program: u32;
+
+    unsafe {
+        gl::GenVertexArrays(1, &mut vao);
+        gl::GenBuffers(1, &mut vbo);
+        gl::BindVertexArray(vao);
+        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+        gl::BufferData(
+            gl::ARRAY_BUFFER,
+            (vertices.len() * size_of::<f32>()) as isize,
+            vertices.as_ptr() as *const c_void,
+            gl::STATIC_DRAW,
+        );
+
+        vertex_shader = gl::CreateShader(gl::VERTEX_SHADER);
+        let c_str_vert = CString::new(VERTEX_SHADER_SOURCE).unwrap();
+        gl::ShaderSource(vertex_shader, 1, &c_str_vert.as_ptr(), null());
+        gl::CompileShader(vertex_shader);
+
+        fragment_shader = gl::CreateShader(gl::FRAGMENT_SHADER);
+        let c_str_frag = CString::new(FRAGMENT_SHADER_SOURCE).unwrap();
+        gl::ShaderSource(fragment_shader, 1, &c_str_frag.as_ptr(), null());
+        gl::CompileShader(fragment_shader);
+
+        gl::VertexAttribPointer(
+            0,
+            3,
+            gl::FLOAT,
+            gl::FALSE,
+            (3 * size_of::<f32>()) as i32,
+            null(),
+        );
+        gl::EnableVertexAttribArray(0);
+
+        shader_program = gl::CreateProgram();
+        gl::AttachShader(shader_program, vertex_shader);
+        gl::AttachShader(shader_program, fragment_shader);
+        gl::LinkProgram(shader_program);
+
+        gl::DeleteShader(vertex_shader);
+        gl::DeleteShader(fragment_shader);
+
+        gl::Viewport(0, 0, width, height);
+    }
+
     while !window.should_close() {
         for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&mut window, event);
@@ -44,6 +102,10 @@ fn main() {
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
+
+            gl::UseProgram(shader_program);
+            gl::BindVertexArray(vao);
+            gl::DrawArrays(gl::TRIANGLES, 0, 3);
         }
 
         glfw.poll_events();
