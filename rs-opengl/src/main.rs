@@ -17,7 +17,12 @@ fn main() {
                 m_height = mode.height;
                 m_width = mode.width;
             }
-            glfw.create_window(m_width, m_height, "Learn OpenGL", glfw::WindowMode::Windowed)
+            glfw.create_window(
+                m_width,
+                m_height,
+                "Learn OpenGL",
+                glfw::WindowMode::Windowed,
+            )
         })
         .expect("Failed to create GLFW window.");
 
@@ -35,12 +40,12 @@ fn main() {
         for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&mut window, event);
         }
-        
+
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
-        
+
         glfw.poll_events();
         window.swap_buffers();
     }

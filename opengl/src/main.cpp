@@ -2,21 +2,17 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
-{
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
+void processInput(GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
 }
 
-int main()
-{
+int main() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -24,8 +20,7 @@ int main()
 
     GLFWwindow *window = glfwCreateWindow(800, 600, "LearnOpenGl", NULL, NULL);
 
-    if (window == NULL)
-    {
+    if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
@@ -33,16 +28,28 @@ int main()
 
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    while (!glfwWindowShouldClose(window))
-    {
+    float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+                        0.0f,  0.0f,  0.5f, 0.0f};
+
+    unsigned int VBO;
+
+    // Create a buffer object
+    glGenBuffers(1, &VBO);
+
+    // Bind the buffer to GL_ARRAY_BUFFER
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    // Upload data to GPU
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    while (!glfwWindowShouldClose(window)) {
         // input
         processInput(window);
 
