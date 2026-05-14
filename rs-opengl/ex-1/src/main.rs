@@ -1,3 +1,5 @@
+// Try to draw 2 triangles next to each other using glDrawArrays by adding more vertices to your data
+
 use glfw::{Action, Context, Key};
 use std::{
     ffi::{CString, c_void},
@@ -43,17 +45,11 @@ fn main() {
         None => std::ptr::null(),
     });
 
-    let vertices: [f32; 12] = [
-        0.5, 0.5, 0.0, // top right
-        0.5, -0.5, 0.0, // bottom right
-        -0.5, -0.5, 0.0, // bottom left
-        -0.5, 0.5, 0.0, // top left
+    let vertices: [f32; 15] = [
+        -1.0, 0.0, 0.0, -0.5, 1.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 0.0, 1.0, 0.0, 0.0,
     ];
 
-    let indices: [u32; 6] = [
-        0, 1, 3, // first triangle
-        1, 2, 3, // second triangle
-    ];
+    let indices: [u32; 6] = [0, 1, 2, 2, 3, 4];
 
     let mut vbo: u32 = 0;
     let mut vao: u32 = 0;
@@ -110,7 +106,7 @@ fn main() {
         gl::AttachShader(shader_program, fragment_shader);
         gl::LinkProgram(shader_program);
 
-        gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+        // gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
 
         gl::DeleteShader(vertex_shader);
         gl::DeleteShader(fragment_shader);
