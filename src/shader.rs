@@ -20,8 +20,8 @@ impl Shader {
         let vertex: u32;
         let fragment: u32;
         let mut success = 0;
-        let mut buf_size = 0;
-        let info_log = CString::new("hello").unwrap().as_ptr() as *mut i8;
+        let mut log_len = 0;
+        let mut info_log = vec![0u8; 512];
 
         unsafe {
             // vertex shader
@@ -29,18 +29,34 @@ impl Shader {
             gl::ShaderSource(vertex, 1, &vertex_shader_code.as_ptr(), null());
             gl::CompileShader(vertex);
             gl::GetShaderiv(vertex, gl::COMPILE_STATUS, &mut success);
-            if success != 0 {
-                gl::GetShaderInfoLog(vertex, 512, &mut buf_size, info_log);
-                eprintln!("{:#?}", info_log);
+            if success == 0 {
+                gl::GetShaderInfoLog(
+                    vertex,
+                    info_log.len() as i32,
+                    &mut log_len,
+                    info_log.as_mut_ptr() as *mut i8,
+                );
+                eprintln!(
+                    "VERTEX SHADER COMPILATION FAILED:\n{}",
+                    String::from_utf8_lossy(&info_log[..log_len as usize])
+                );
             }
             // fragment shader
             fragment = gl::CreateShader(gl::FRAGMENT_SHADER);
             gl::ShaderSource(fragment, 1, &fragment_shader_code.as_ptr(), null());
             gl::CompileShader(fragment);
             gl::GetShaderiv(fragment, gl::COMPILE_STATUS, &mut success);
-            if success != 0 {
-                gl::GetShaderInfoLog(fragment, 512, &mut buf_size, info_log);
-                eprintln!("{:#?}", info_log);
+            if success == 0 {
+                gl::GetShaderInfoLog(
+                    fragment,
+                    info_log.len() as i32,
+                    &mut log_len,
+                    info_log.as_mut_ptr() as *mut i8,
+                );
+                eprintln!(
+                    "FRAGMENT SHADER COMPILATION FAILED:\n{}",
+                    String::from_utf8_lossy(&info_log[..log_len as usize])
+                );
             }
             // shader program
             let id = gl::CreateProgram();
@@ -48,9 +64,17 @@ impl Shader {
             gl::AttachShader(id, fragment);
             gl::LinkProgram(id);
             gl::GetProgramiv(id, gl::LINK_STATUS, &mut success);
-            if success != 0 {
-                gl::GetProgramInfoLog(id, 512, &mut buf_size, info_log);
-                eprintln!("{:#?}", info_log);
+            if success == 0 {
+                gl::GetProgramInfoLog(
+                    id,
+                    info_log.len() as i32,
+                    &mut log_len,
+                    info_log.as_mut_ptr() as *mut i8,
+                );
+                eprintln!(
+                    "SHADER PROGRAM LINK FAILED:\n{}",
+                    String::from_utf8_lossy(&info_log[..log_len as usize])
+                );
             }
             // delete shader
             gl::DeleteShader(vertex);
@@ -68,7 +92,7 @@ impl Shader {
         }
     }
 
-    pub fn set_bool(self, name: String, value: bool) {
+    pub fn set_bool(&self, name: &str, value: bool) {
         if let Some(id) = self.program_id {
             let c_name = CString::new(name).unwrap();
             unsafe {
@@ -77,7 +101,7 @@ impl Shader {
         }
     }
 
-    pub fn set_int(self, name: String, value: i32) {
+    pub fn set_int(&self, name: &str, value: i32) {
         if let Some(id) = self.program_id {
             let c_name = CString::new(name).unwrap();
             unsafe {
@@ -86,7 +110,7 @@ impl Shader {
         }
     }
 
-    pub fn set_float(self, name: String, value: f32) {
+    pub fn set_float(&self, name: &str, value: f32) {
         if let Some(id) = self.program_id {
             let c_name = CString::new(name).unwrap();
             unsafe {

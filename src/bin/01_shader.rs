@@ -13,8 +13,8 @@ impl GlApp for ShaderLession {
         let vao = setup_scene();
         let mut shader = Shader::new();
         shader.load_shader(
-            "../shader/01_shader/vertex.vs",
-            "../shader/01_shader/fragment.fs",
+            concat!(env!("CARGO_MANIFEST_DIR"), "/src/shader/01_shader/vertex.vs"),
+            concat!(env!("CARGO_MANIFEST_DIR"), "/src/shader/01_shader/fragment.fs"),
         );
         Self {
             vao,
