@@ -1,8 +1,9 @@
-[workspace]
-resolver = "3"
-members = ["gl-00-triangle"]
+[package]
+name = "rs_opengl"
+version = "0.1.0"
+edition = "2024"
 
-[workspace.dependencies]
+[dependencies]
 winit = "0.30.13"
 glutin = "0.32.3"
 gl = "0.14.0"
