@@ -14,12 +14,12 @@ const FRAGMENT_SHADER_SOURCE: &str = r#"
     void main() { FragColor = vec4(1.0, 0.5, 0.2, 1.0); }
 "#;
 
-struct Triangle {
+struct TriangleLession {
     vao: u32,
     shader_program: u32,
 }
 
-impl GlApp for Triangle {
+impl GlApp for TriangleLession {
     fn setup() -> Self {
         let (vao, shader_program) = setup_scene();
         Self { vao, shader_program }
@@ -93,5 +93,5 @@ fn compile_shader(source: &str, shader_type: u32) -> u32 {
 }
 
 fn main() {
-    run_app::<Triangle>("Triangle");
+    run_app::<TriangleLession>("Triangle");
 }
