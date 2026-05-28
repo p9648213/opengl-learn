@@ -1,6 +1,6 @@
 use std::ffi::{CString, c_void};
 use std::ptr::null;
-use rs_opengl::{GlApp, run_app};
+use opengl_learn::{GlApp, run_app};
 
 const VERTEX_SHADER_SOURCE: &str = r#"
     #version 330 core

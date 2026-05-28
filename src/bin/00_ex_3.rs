@@ -1,4 +1,4 @@
-use rs_opengl::{GlApp, run_app};
+use opengl_learn::{GlApp, run_app};
 use std::ffi::{CString, c_void};
 use std::ptr::null;
 

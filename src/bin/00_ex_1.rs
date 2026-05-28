@@ -1,34 +1,30 @@
-use rs_opengl::{GlApp, run_app};
+use opengl_learn::{GlApp, run_app};
 use std::ffi::{CString, c_void};
 use std::ptr::null;
-use std::time::Instant;
 
 const VERTEX_SHADER_SOURCE: &str = r#"
     #version 330 core
     layout (location = 0) in vec3 aPos;
-    void main() { gl_Position = vec4(aPos, 1.0); }
+    void main() { gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0); }
 "#;
 
 const FRAGMENT_SHADER_SOURCE: &str = r#"
     #version 330 core
     out vec4 FragColor;
-    uniform vec4 ourColor;
-    void main() { FragColor = ourColor; }
+    void main() { FragColor = vec4(1.0, 0.5, 0.2, 1.0); }
 "#;
 
-struct Shader {
+struct Ex1 {
     vao: u32,
     shader_program: u32,
-    start_time: Instant
 }
 
-impl GlApp for Shader {
+impl GlApp for Ex1 {
     fn setup() -> Self {
         let (vao, shader_program) = setup_scene();
         Self {
             vao,
             shader_program,
-            start_time: Instant::now()
         }
     }
 
@@ -37,13 +33,6 @@ impl GlApp for Shader {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
             gl::UseProgram(self.shader_program);
-            let time_value = self.start_time.elapsed().as_secs_f32();
-            let green_value = (f32::sin(time_value) / 2.0) + 0.5;
-            let vertex_color_location = gl::GetUniformLocation(
-                self.shader_program,
-                CString::new("ourColor").unwrap().as_ptr(),
-            );
-            gl::Uniform4f(vertex_color_location, 0.0, green_value, 0.0, 1.0);
             gl::BindVertexArray(self.vao);
             gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, null());
         }
@@ -51,10 +40,10 @@ impl GlApp for Shader {
 }
 
 fn setup_scene() -> (u32, u32) {
-    let vertices: [f32; 12] = [
-        0.5, 0.5, 0.0, 0.5, -0.5, 0.0, -0.5, -0.5, 0.0, -0.5, 0.5, 0.0,
+    let vertices: [f32; 15] = [
+        -1.0, 0.0, 0.0, -0.5, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.0, 1.0, 0.0, 0.0,
     ];
-    let indices: [u32; 6] = [0, 1, 3, 1, 2, 3];
+    let indices: [u32; 6] = [0, 1, 2, 2, 3, 4];
 
     let mut vao = 0;
     let mut vbo = 0;
@@ -125,5 +114,5 @@ fn compile_shader(source: &str, shader_type: u32) -> u32 {
 }
 
 fn main() {
-    run_app::<Shader>("Shader");
+    run_app::<Ex1>("Ex 1");
 }
